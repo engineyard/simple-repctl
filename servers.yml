@@ -1,0 +1,25 @@
+---
+-   instance: 1
+    hostname: "127.0.0.1"
+    port: 3307
+    role: master
+    data_dir: "/opt/MySQL/instances/data1"
+
+-   instance: 2
+    hostname: "127.0.0.1"
+    port: 3308
+    role: slave
+    data_dir: "/opt/MySQL/instances/data2"
+    
+-   instance: 3
+    hostname: "127.0.0.1"
+    port: 3309
+    role: master
+    data_dir: "/opt/MySQL/instances/data3"
+
+-   instance: 4
+    hostname: "127.0.0.1"
+    port: 3310
+    role: slave
+    data_dir: "/opt/MySQL/instances/data4"
+
