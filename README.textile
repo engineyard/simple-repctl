@@ -41,7 +41,7 @@ The available commands may be seen by running @thor list@:
 
 Once this tool itself is configured and the prerequisites, described below, are satisfied, a new master/slave pair can be started from scratch with: @thor setup:repl_pair 1 2_@.  This command stops MySQL instances 1 and 2 if they are running, commpletely removes their data directories, reinitializes the the data directories, restarts the MySQL servers, configures _cluster\_user_ and _repl\_user_ accounts, and starts up replication.  This is perfect for development or test environments where a new clean environment needs to be set up between tests. The MySQL servers will be available on sockets @/tmp/mysql1.sock@ and @/tmp/mysql2.sock@. 
 
-It is reasonable to run six MySQL servers on a MacBook Pro with decent performance.
+It is reasonable to run six MySQL servers on a MacBook Pro with decent performance.  This script is intended for development and experimentation.  Another version (_cloud-repctl_) will handle replication related operations between MySQL server instances in a cloud environment.
 
 h3. Prerequisites and Configuration
 
