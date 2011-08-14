@@ -1,6 +1,8 @@
 h1. Simple Administration for MySQL Replication
 
-This _repctl_ package is a Thor script for developers to setup and administer multiple MySQL servers on a single machine.  Replication may be set up between a master and slave with a single command. Similarly, a new slave may be added to an existing master (that may already have data) with a single command.  A load-generator/benchmark program may be run, and replication status, including current lag, can be seen in a continuously updated display.  The available commands may be seen by running @thor list@:
+This _repctl_ package is a Thor script for developers to setup and administer multiple MySQL servers on a single machine.  Replication may be set up between a master and slave with a single command. Similarly, a new slave may be added to an existing master (that may already have data) with a single command.  A load-generator/benchmark program may be run, and replication status, including current lag, can be seen in a continuously updated display.
+
+The available commands may be seen by running @thor list@:
 
 <pre>
 	<code>
