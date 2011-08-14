@@ -1,16 +1,13 @@
 require File.expand_path('../mysql_admin.rb', __FILE__)
+require File.expand_path('../config.rb', __FILE__)
 
-DEFAULT_DUMPFILE = "dbdump.db"
-
-# The location of the local MySQL installation.
-MYSQL_HOME = "/usr/local/mysql"
-
-# The servers.yml file also as a data_dir property.  And this must
-# agree with the values in my*.cnf. Get rid of this and use the values
-# in servers.yml. TODO
-INSTANCES_HOME = "/opt/MySQL/instances"
-
+# Thor has the 'helpful' property that any Thor task gets executed only
+# once.  The 'Helpers' module makes many Thor tasks available as ordinary
+# Ruby functions for internal use.  The corresponding Thor tasks usually
+# delegate to the corresponding helper function with 'super'.
 module Helpers
+  
+  include MySQLAdmin::Config
   
   def start(instance)
     say "Starting instance #{instance}.", :green
@@ -36,7 +33,7 @@ module Helpers
   
   def config(instance)
     say "Initializing new data directory for instance #{instance}."
-    datadir = "#{INSTANCES_HOME}/data#{instance}"
+    datadir = "#{DATA_HOME}/data#{instance}"
     remove_dir datadir
     cmd = "./scripts/mysql_install_db --datadir=#{datadir} " +
       "--user=_mysql --relay-log=tethys-relay-bin"
@@ -92,9 +89,10 @@ end # Module helpers
 
 class Mysql < Thor
   
-  include ::Thor::Actions
-  include ::MySQLAdmin::Commands
-  include ::MySQLAdmin::Servers
+  include Thor::Actions
+  include MySQLAdmin::Config
+  include MySQLAdmin::Commands
+  include MySQLAdmin::Servers
   include Helpers
   
   desc "start INSTANCE", "Ensure that the given MySQL server instance is running."
@@ -108,12 +106,12 @@ class Mysql < Thor
   end
   
   desc "stop INSTANCE", "Stop a running MySQL server instance."
-  def start(instance)
+  def stop(instance)
     super
   end
   
   desc "stop_all", "Stop all the MySQL servers."
-  def start_all
+  def stop_all
     super
   end
   
@@ -165,9 +163,10 @@ class Mysql < Thor
   desc "status", "Show the status of replication."
    method_option :continuous, :aliases => "-c", :type => :numeric,
     :desc => "Continuous output at specified interval (in seconds)."
+  method_option :servers, :aliases => "-s", :type => :array,
+    :desc => "Only check the status of given servers."
   def status
-    todos = MySQLAdmin::Servers.all_instances
-    
+    todos = options[:servers] || MySQLAdmin::Servers.all_instances
     header = sprintf("%-5s%-25s%-25s%-25s%-8s\n",
       "inst", "master", "received", "applied", "lag")
       
@@ -228,18 +227,18 @@ end
 
 class Utils < Thor
   
-  include ::Thor::Actions
-  include ::MySQLAdmin::Commands
-  include ::MySQLAdmin::Servers
+  include Thor::Actions
+  include MySQLAdmin::Config
+  include MySQLAdmin::Commands
+  include MySQLAdmin::Servers
   include Helpers
   
   DEFAULT_MASTER = 1
   
-  BENCHMARK = "/opt/continuent/replicator/bristlecone/bin/benchmark.sh"
-  BENCHMARK_PROPERTIES = "/opt/MySQL/bristlecone.properties"
-  # BENCHMARK_PROPERTIES = "/opt/MySQL/b2.properties"
-  
-  desc "bench [INSTANCE] [PROPS]", "Run the Tungsten Bristlecone benchmarker."
+  desc "bench [INSTANCE] [PROPS]", "Run the Tungsten Bristlecone benchmarker.
+  The INSTANCE specifies the instance to perform all operations to, and PROPS
+  is the properties file to use. The INSTANCE defaults to #{DEFAULT_MASTER} and
+  the properties file defaults to #{BENCHMARK_PROPERTIES}."
   def bench(instance = DEFAULT_MASTER, props = nil)
     props ||= BENCHMARK_PROPERTIES
     invoke :create_db, [instance, "widgets"]
@@ -299,7 +298,7 @@ class Utils < Thor
     size = options[:size]
     size ||= 100
     size = [size, 32768].min
-    data = IO.read("#{Mysql::INSTANCES_HOME}/words.txt", size)
+    data = IO.read("#{Mysql::DATA_HOME}/words.txt", size)
     id = 1
     count = 0
     
@@ -328,8 +327,9 @@ end
 class Setup < Thor
   
   include ::Thor::Actions
-  include ::MySQLAdmin::Commands
-  include ::MySQLAdmin::Servers
+  include MySQLAdmin::Config
+  include MySQLAdmin::Commands
+  include MySQLAdmin::Servers
   include Helpers
   
   #
@@ -368,7 +368,7 @@ class Setup < Thor
     
     # Slave is running, but it is not yet configured as a slave.
     # Load slave from the dump file...
-    invoke "mysql:restore", slave
+    invoke "mysql:restore", [slave]
     
     change_master(master, slave, file, position)
     start_slave(slave)

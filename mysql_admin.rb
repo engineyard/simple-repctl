@@ -2,19 +2,12 @@ require 'mysql2'
 require 'fileutils'
 require 'delegate'
 require 'open3'
+
+require File.expand_path('../config.rb', __FILE__)
 require File.expand_path('../servers.rb', __FILE__)
 
 module MySQLAdmin
-  
-  MYSQL_HOME = "/usr/local/mysql"
-  INSTANCES_HOME = "/opt/MySQL/instances"
-  REPLICATION_USER = "repl"
-  REPLICATION_PASSWORD = "secret"
-
-  DEFAULT_MASTER = 1
-  RELAY_LOG = "tethys-relay-bin"
-  DUMP_DIR = "#{INSTANCES_HOME}/dump"
-  
+    
   class Client < DelegateClass(Mysql2::Client)
     
     @@clients = {}
@@ -64,6 +57,7 @@ module MySQLAdmin
   module Commands
     
     include FileUtils
+    include MySQLAdmin::Config
         
     def do_start(instance)
       pid = get_mysqld_pid(instance)
@@ -236,7 +230,7 @@ EOT
       coordinates = get_coordinates(instance) do
         cmd = "#{MYSQL_HOME}/bin/mysqldump " +
           "--defaults-file=#{defaults_file(instance)} " +
-          "--all-databases --lock-all-tables > #{DUMP_DIR}/dumpfile"
+          "--all-databases --lock-all-tables > #{DUMP_DIR}/#{dumpfile}"
         run_cmd(cmd, true)
       end
       coordinates
@@ -246,7 +240,7 @@ EOT
       # Assumes that the instance is running, but is not acting as a slave.
       cmd = "#{MYSQL_HOME}/bin/mysql " +
         "--defaults-file=#{defaults_file(instance)} " +
-        "< #{DUMP_DIR}/dumpfile"
+        "< #{DUMP_DIR}/#{dumpfile}"
       run_cmd(cmd, true)
     end
           
@@ -529,7 +523,7 @@ EOT
      end
 
      def defaults_file(instance)
-       "#{INSTANCES_HOME}/my#{instance.to_s}.cnf"
+       "#{DATA_HOME}/my#{instance.to_s}.cnf"
      end
    
     private
