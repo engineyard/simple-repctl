@@ -1,0 +1,59 @@
+= Simple-Repctl - Manage Replication among a set of MySQL Servers 
+
++simple-repctl+ is a utility to configure, reconfigure, start, stop, crash, generate workloads, dump, restore, benchmark, and monitor a set of MySQL servers for development environments where all the MySQL instances run on a single computer.  Replication relationships can be set up among the instances with a single command. While running a load generator or benchmark, the replication status, including current lag, can be seen in a continuously updated display. A slave can be added to an existing server that already has data.
+
++simple-repctl+ is written in Ruby as a Thor script.  It can be viewed as a specialized version of Guiseppe Maxia's <it>MySQL Sandbox (https://launchpad.net/mysql-sandbox), but it is derived from a more sophisticated version of a +repctl+ tool that works across multiple virtual machine instances in a cloud computing environment.
+
+This _repctl_ package is a Thor script for developers to setup and administer multiple MySQL servers on a single machine.  Replication may be set up between a master and slave with a single command. Similarly, a new slave may be added to an existing master (that may already have data) with a single command.  A load-generator/benchmark program may be run, and replication status, including current lag, can be seen in a continuously updated display.
+
+== Available Commands
+
+    tethys:repctl mbs$ thor list
+    mysql
+    -----
+    thor mysql:change_master MASTER SLAVE FILE POSITION  # Execute CHANGE MASTER TO on the SLAVE.
+    thor mysql:cluster_user INSTANCE                     # Create the cluster user account on a MySQL instance.
+    thor mysql:config INSTANCE                           # Initialize the data directory for a new instance.
+    thor mysql:config_all                                # Initialize the data directories for all instances.           
+    thor mysql:crash INSTANCE                            # Crash a running MySQL server.
+    thor mysql:dump INSTANCE [DUMPFILE]                  # Dump all databases after FLUSH TABLES WITH READ LOCK             
+    thor mysql:repl_user INSTANCE                        # Create the replication user account on a MySQL insta...
+    thor mysql:reset INSTANCE                            # Remove database and restart MySQL server.
+    thor mysql:reset_all                                 # Remove all databases and restart MySQL instances.          
+    thor mysql:restore INSTANCE [DUMPFILE]               # Restore INSTANCE from a 'mysqldump' file DUMPFILE.
+    thor mysql:start_slave SLAVE                         # Issue START SLAVE on the SLAVE MySQL instance.
+    thor mysql:status                                    # Show the status of replication.
+    thor mysql:stop INSTANCE                             # Stop a running MySQL server instance.
+    thor mysql:stop_all                                  # Stop all the MySQL servers.
+
+    setup
+    -----
+    thor setup:add_slave MASTER SLAVE  # Master has some data that is used to initialize the slave.
+    thor setup:repl_pair MASTER SLAVE  # Set up a single master/slave replication pair from the very beginning.
+
+    utils
+    -----
+    thor utils:bench [INSTANCE] [PROPS]                  # Run the Tungsten Bristlecone benchmarker. The INSTAN...
+    thor utils:create_db [INSTANCE] [DBNAME]             #  "Create a database on a MySQL instance. INSTANCE de...
+    thor utils:create_tbl [INSTANCE] [DBNAME] [TBLNAME]  #  Create a database table. INSTANCE defaults to DEFAU...
+    thor utils:gen_rows [INSTANCE], [DBNAME], [TBLNAME]  #  Add rows to a table that was created by "utils:crea...
+
+== Configuring Simple Repctl
+
+This tool needs some configuration before you can use it.
+
+You should have an valid MySQL installation and the Thor gem installed.  Your existing MySQL server will not be affected by the +repctl+ script.  However, binaries from this installation will be reused.  In the +config.rb+ file set the constants:
+
+* MYSQL_HOME -- the location of the local MySQL installation
+* DATA_HOME -- the location of the directory where per-MySQL server data directories are created.
+* DUMP_DIR -- the location where you want dump files to be stored
+* RELAY_LOG -- adjust this according to your hostname
+
+Next, define the potential instances you want to create.  Edit the +servers.yml+ file as appropriate.
+
+Finally, edit the existing +my*.cnf*+ files to at least have the correct +datadir+ defined.
+
+== Using Simple Repctl
+
+You are now ready to rock.  Run +thor mysql:start_all+ to start up all the servers listed in your +servers.yml+ file. Instead or subsequently, you can run +thor setup:repl_pair 1 2+ to reset everything and create a master/slave replication pair. Start up some load to the MySQL master (at socket +/tmp/mysql1.sock+, by default), then watch the replication status change by running +thor mysql:status -s 1 2 -c 5+ to see a continuous update of the status, updated every 5 seconds.  Add a new slave using instance 3, which may or may not be running and may or may not have its data directory initialized, by running +thor setup:add_slave 1 3+.  This does a dump on the master and a restore on the slave and restarts replication using the proper replication coordinates.
+
