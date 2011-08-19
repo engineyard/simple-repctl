@@ -2,7 +2,7 @@
 
 +simple-repctl+ is a utility to configure, reconfigure, start, stop, crash, generate workloads, dump, restore, benchmark, and monitor a set of MySQL servers for development environments where all the MySQL instances run on a single computer.  Replication relationships can be set up among the instances with a single command. While running a load generator or benchmark, the replication status, including current lag, can be seen in a continuously updated display. A slave can be added to an existing server that already has data.
 
-+simple-repctl+ is written in Ruby as a Thor script.  It can be viewed as a specialized version of Guiseppe Maxia's <it>MySQL Sandbox (https://launchpad.net/mysql-sandbox), but it is derived from a more sophisticated version of a +repctl+ tool that works across multiple virtual machine instances in a cloud computing environment.
++simple-repctl+ is written in Ruby as a Thor script.  It can be viewed as a specialized version of Guiseppe Maxia's <i>MySQL Sandbox</i> (https://launchpad.net/mysql-sandbox), but it is derived from a more sophisticated version of a +repctl+ tool that works across multiple virtual machine instances in a cloud computing environment.
 
 This _repctl_ package is a Thor script for developers to setup and administer multiple MySQL servers on a single machine.  Replication may be set up between a master and slave with a single command. Similarly, a new slave may be added to an existing master (that may already have data) with a single command.  A load-generator/benchmark program may be run, and replication status, including current lag, can be seen in a continuously updated display.
 
