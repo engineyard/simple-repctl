@@ -1,10 +1,8 @@
 = Simple-Repctl - Manage Replication among a set of MySQL Servers 
 
-+simple-repctl+ is a utility to configure, reconfigure, start, stop, crash, generate workloads, dump, restore, benchmark, and monitor a set of MySQL servers for development environments where all the MySQL instances run on a single computer.  Replication relationships can be set up among the instances with a single command. While running a load generator or benchmark, the replication status, including current lag, can be seen in a continuously updated display. A slave can be added to an existing server that already has data.
++simple-repctl+ is a utility to configure, reconfigure, start, stop, crash, generate workloads, dump, restore, benchmark, and monitor a set of MySQL servers for development environments where all the MySQL instances run on a single computer.  Replication relationships can be set up among the instances with a single command. While running a load generator or benchmark, the replication status, including current lag, can be seen in a continuously updated display. A slave can be added to an existing server that already has data.  
 
 +simple-repctl+ is written in Ruby as a Thor script.  It can be viewed as a specialized version of Guiseppe Maxia's <i>MySQL Sandbox</i> (https://launchpad.net/mysql-sandbox), but it is derived from a more sophisticated version of a +repctl+ tool that works across multiple virtual machine instances in a cloud computing environment.
-
-This _repctl_ package is a Thor script for developers to setup and administer multiple MySQL servers on a single machine.  Replication may be set up between a master and slave with a single command. Similarly, a new slave may be added to an existing master (that may already have data) with a single command.  A load-generator/benchmark program may be run, and replication status, including current lag, can be seen in a continuously updated display.
 
 == Available Commands
 
@@ -49,11 +47,11 @@ You should have an valid MySQL installation and the Thor gem installed.  Your ex
 * DUMP_DIR -- the location where you want dump files to be stored
 * RELAY_LOG -- adjust this according to your hostname
 
-Next, define the potential instances you want to create.  Edit the +servers.yml+ file as appropriate.
+Next, define the potential instances you want to create.  Edit the <tt>servers.yml</tt> file as appropriate.
 
-Finally, edit the existing +my*.cnf*+ files to at least have the correct +datadir+ defined.
+Finally, edit the existing <tt>my*.cnf*</tt> files to at least have the correct <tt>datadir</tt> defined.
 
 == Using Simple Repctl
 
-You are now ready to rock.  Run +thor mysql:start_all+ to start up all the servers listed in your +servers.yml+ file. Instead or subsequently, you can run +thor setup:repl_pair 1 2+ to reset everything and create a master/slave replication pair. Start up some load to the MySQL master (at socket +/tmp/mysql1.sock+, by default), then watch the replication status change by running +thor mysql:status -s 1 2 -c 5+ to see a continuous update of the status, updated every 5 seconds.  Add a new slave using instance 3, which may or may not be running and may or may not have its data directory initialized, by running +thor setup:add_slave 1 3+.  This does a dump on the master and a restore on the slave and restarts replication using the proper replication coordinates.
+You are now ready to rock.  Run <tt>thor mysql:start_all</tt> to start up all the servers listed in your +servers.yml+ file. Instead or subsequently, you can run <tt>thor setup:repl_pair 1 2</tt> to reset everything and create a master/slave replication pair. Start up some load to the MySQL master (at socket +/tmp/mysql1.sock+, by default), then watch the replication status change by running <tt>thor mysql:status -s 1 2 -c 5</tt> to see a continuous update of the status, updated every 5 seconds.  Add a new slave using instance +3+, which may or may not be running and may or may not have its data directory initialized, by running <tt>thor setup:add_slave 1 3</tt>.  This does a dump on the master and a restore on the slave and restarts replication using the proper replication coordinates.
 
