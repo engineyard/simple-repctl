@@ -363,7 +363,9 @@ class Setup < Thor
   def add_slave(master, slave)
     reset(slave)
     
-    invoke "utils:bench", [master, "/opt/MySQL/b2.properties"]
+    if options[:populate]
+      invoke "utils:bench", [master, "/opt/MySQL/b2.properties"]
+    end
     file, position = invoke "mysql:dump", [master]
     
     # Slave is running, but it is not yet configured as a slave.
